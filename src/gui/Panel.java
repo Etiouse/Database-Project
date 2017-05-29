@@ -11,6 +11,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -37,6 +38,8 @@ public class Panel extends JPanel{
 	private String error;
 	private String done;
 	private int mode;
+	private int time;
+	private boolean timesup;
 
 	private ArrayList<String> tables;
 	private ArrayList<Button> tablesButtons;
@@ -64,6 +67,8 @@ public class Panel extends JPanel{
 		error = "";
 		done = "";
 		mode = 0;
+		time = 0;
+		timesup = true;
 
 		refreshDatabase();
 		loadTableArgs(tables.get(tableSelected));
@@ -167,6 +172,19 @@ public class Panel extends JPanel{
 						argsList[i] = args.get(i).getName();
 					}
 					deconds.add(new DeleteCondition(argsList, 250, 200 + deconds.size() * 140));
+				}
+			}
+			
+			// Handle the exposure time of the info message
+			if (!done.equals("") && timesup) {
+				timesup = false;
+				time = (int) Calendar.getInstance().getTime().getTime();
+			}
+			if (!timesup) {
+				int currentTime = (int) Calendar.getInstance().getTime().getTime();
+				if (currentTime - time > 2000) {
+					timesup = true;
+					done = "";
 				}
 			}
 
