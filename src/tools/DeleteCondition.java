@@ -66,6 +66,10 @@ public class DeleteCondition {
 	public boolean finished(){
 		return valueList.finished();
 	}
+	
+	public String getArg(){
+		return arg;
+	}
 
 	public void draw(Graphics g, int mouseX, int mouseY, Mouse mouse){
 		

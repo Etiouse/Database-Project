@@ -203,7 +203,7 @@ public class Panel extends JPanel{
 			g.setColor(Color.RED);
 			g.setFont(new Font("Serif", Font.BOLD, 18));
 			g.drawString(error, 245, 185);
-			
+
 			// Display an eventual done message
 			g.setColor(Color.GREEN);
 			g.setFont(new Font("Serif", Font.BOLD, 18));
@@ -279,8 +279,10 @@ public class Panel extends JPanel{
 				int x = 248 + ((i-1) % 3) * 170;
 				int y = 200 + ((int) Math.floor((i - 1) / 3)) * 70;
 				String name = meta.getColumnName(i);
+				String type = meta.getColumnTypeName(i);
+				int nullable = meta.isNullable(i);
 				if (name.length() > 17) name = name.substring(0, 17) + "...";
-				args.add(new Argument(name, 0, x, y));
+				args.add(new Argument(name, type, nullable, x, y));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -306,38 +308,54 @@ public class Panel extends JPanel{
 
 	private void insertQuery(Graphics g, String tableName, Argument[] content) {
 		String query = "INSERT INTO " + tableName + " (";
+		boolean correct = true;
 		for (int i = 0; i < content.length; i++){
 			query += content[i].getName();
 			if (i < content.length - 1) query += ", ";
-		}
-		query += ") VALUES (";
-		for (int i = 0; i < content.length; i++){
-			String cont = content[i].getContent();
-			query += "'" + cont + "'";
-			if (cont.equals("")) query += "null";
-			if (i < content.length - 1) query += ", ";
-		}
-		query += ")";
-		try {
-			s.executeQuery(query);
-			error = "";
-			for (int i = 0; i < content.length; i++){
-				content[i].resetText();
+			if (!content[i].matchType(content[i].getContent())) {
+				correct = false;
+				error = content[i].getName() + " should be " + content[i].getGoodType() + "";
+				done = "";
+				break;
 			}
-			done = "Insertion done";
-			error = "";
-		} catch (SQLException e) {
-			error = "Wrong format detected";
-			done = "";
-			System.out.println(query);
+			if (content[i].isNullable() == 0 && content[i].getContent().equals("")) {
+				correct = false;
+				error = content[i].getName() + " has to be filled";
+				done = "";
+				break;
+			}
+		}
+		
+		if (correct) {
+			query += ") VALUES (";
+			for (int i = 0; i < content.length; i++){
+				String cont = content[i].getContent();
+				if (cont.equals("")) query += "null";
+				else query += "'" + cont + "'";
+				if (i < content.length - 1) query += ", ";
+			}
+			query += ")";
+			try {
+				s.executeQuery(query);
+				error = "";
+				for (int i = 0; i < content.length; i++){
+					content[i].resetText();
+				}
+				done = "Insertion done";
+				error = "";
+			} catch (SQLException e) {
+				error = "Wrong format detected";
+				done = "";
+			}
 		}
 	}
 
 	private void deleteQuery(Graphics g, String tableName, ArrayList<DeleteCondition> content){
 		String query = "DELETE FROM " + tableName + " WHERE ";
 		for (int i = 0; i < content.size(); i++){
-			if (i > 0 && !content.get(i).getText().equals("")) query += " AND ";
-			query += content.get(i).getText();
+			DeleteCondition dc = content.get(i);
+			if (i > 0 && !dc.getText().equals("")) query += " AND ";
+			query += dc.getText();
 		}
 		try {
 			if (!query.substring(query.length()-6, query.length()).equals("WHERE ")) {
@@ -355,7 +373,6 @@ public class Panel extends JPanel{
 		} catch (SQLException e) {
 			error = "Wrong format detected";
 			done = "";
-			System.out.println(query);
 		}
 	}
 }
