@@ -60,7 +60,7 @@ public class DeleteCondition {
 		else if (!arg.equals("") && operation.equals("")) return "";
 		else if (operation.equals("=") && value.equals("null")) return arg + " IS NULL";
 		else if (arg.equals("") && operation.equals("") && value.equals("")) return "";
-		else return arg + " " + operation + " " + value;
+		else return arg + " " + operation + " '" + value + "'";
 	}
 	
 	public boolean finished(){

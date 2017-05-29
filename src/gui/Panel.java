@@ -35,6 +35,7 @@ public class Panel extends JPanel{
 	private Button addMode;
 	private Button deleteMode;
 	private String error;
+	private String done;
 	private int mode;
 
 	private ArrayList<String> tables;
@@ -47,7 +48,7 @@ public class Panel extends JPanel{
 		mouseX = 0;
 		mouseY = 0;
 		panel = 0;
-		tableSelected = 21;
+		tableSelected = 1;
 		lastTFS = -1;
 		tables = new ArrayList<>();
 		tablesButtons = new ArrayList<>();
@@ -61,6 +62,7 @@ public class Panel extends JPanel{
 		s = c.createStatement();
 		declareButtons();
 		error = "";
+		done = "";
 		mode = 0;
 
 		refreshDatabase();
@@ -176,6 +178,7 @@ public class Panel extends JPanel{
 					if (mouse.isClickedL()) {
 						mode = 1;
 						error = "";
+						done = "";
 						String[] argsList = new String[args.size()];
 						for (int i = 0; i < args.size(); i++) {
 							argsList[i] = args.get(i).getName();
@@ -190,6 +193,7 @@ public class Panel extends JPanel{
 					if (mouse.isClickedL()) {
 						mode = 0;
 						error = "";
+						done = "";
 						deconds = new ArrayList<>();
 					}
 				}
@@ -199,6 +203,11 @@ public class Panel extends JPanel{
 			g.setColor(Color.RED);
 			g.setFont(new Font("Serif", Font.BOLD, 18));
 			g.drawString(error, 245, 185);
+			
+			// Display an eventual done message
+			g.setColor(Color.GREEN);
+			g.setFont(new Font("Serif", Font.BOLD, 18));
+			g.drawString(done, 245, 185);
 			g.setColor(Color.BLACK);
 		}
 
@@ -213,6 +222,7 @@ public class Panel extends JPanel{
 					if (mouse.isClickedL()) {
 						tableSelected = i;
 						error = "";
+						done = "";
 						args = new ArrayList<>();
 						lastTFS = -1;
 						loadTableArgs(tables.get(tableSelected));
@@ -302,8 +312,9 @@ public class Panel extends JPanel{
 		}
 		query += ") VALUES (";
 		for (int i = 0; i < content.length; i++){
-			query += content[i].getContent();
-			if (content[i].getContent().equals("")) query += "null";
+			String cont = content[i].getContent();
+			query += "'" + cont + "'";
+			if (cont.equals("")) query += "null";
 			if (i < content.length - 1) query += ", ";
 		}
 		query += ")";
@@ -313,8 +324,11 @@ public class Panel extends JPanel{
 			for (int i = 0; i < content.length; i++){
 				content[i].resetText();
 			}
+			done = "Insertion done";
+			error = "";
 		} catch (SQLException e) {
 			error = "Wrong format detected";
+			done = "";
 			System.out.println(query);
 		}
 	}
@@ -336,9 +350,11 @@ public class Panel extends JPanel{
 				argsList[i] = args.get(i).getName();
 			}
 			deconds.add(new DeleteCondition(argsList, 250, 200));
-			System.out.println(query);
+			done = "Deletion done";
+			error = "";
 		} catch (SQLException e) {
 			error = "Wrong format detected";
+			done = "";
 			System.out.println(query);
 		}
 	}
