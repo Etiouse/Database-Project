@@ -5,10 +5,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Insets;
-import java.awt.LayoutManager;
 import java.awt.MouseInfo;
-import java.awt.ScrollPane;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -18,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Vector;
 
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -125,10 +123,18 @@ public class Panel extends JPanel {
 			if (search.isSelected(mouseX, mouseY)) {
 				search.glow(g);
 				if (mouse.isClickedL()) {
+					scrollPane.remove(contentPanel);
+					contentPanel = new JPanel();
+					contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));	
+					//contentPanel.setBounds(0, 0, 715, 300*tables.size());
+					index = 0;
 					String c = tf.getContent();
-					searchQuery(g, c, "");
-					scrollPane.getViewport().add(contentPanel);
-					scrollPane.validate();
+					if (c != ""){
+						searchQuery(g, c, "");
+						scrollPane.getViewport().add(contentPanel);
+						scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+						scrollPane.validate();
+					}
 				}
 			}
 
@@ -346,6 +352,9 @@ public class Panel extends JPanel {
 					panel = i;
 					this.remove(scrollPane);
 					this.remove(scroll);
+					if (panel == 0){
+						this.add(scrollPane);
+					}
 				}
 			}
 		}
@@ -543,12 +552,10 @@ public class Panel extends JPanel {
 
 					JTable jTab = new JTable(buildTabelModel(rs));
 					if (jTab.getRowCount() > 0) {
-						jTab.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+						//jTab.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 						JScrollPane scroll = new JScrollPane(jTab);
 						this.setLayout(null);
 						JLabel lab = new JLabel("FOUND in table "+ tableName);
-						lab.setBounds(100, 100+ 100*index, 100, 5);
-						scroll.setBounds(100, 110 + 250*index, 250, 250);
 						index++;
 						contentPanel.add(lab);
 						contentPanel.add(scroll);
