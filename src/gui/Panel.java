@@ -59,6 +59,7 @@ public class Panel extends JPanel{
 	private Query[] queries;
 	
 	private Button find;
+	private JScrollPane scroll;
 
 	public Panel(Connection connection) throws SQLException {
 		mouseX = 0;
@@ -80,6 +81,7 @@ public class Panel extends JPanel{
 		scrollsName = new ArrayList<>();
 		queries = new Query[23];
 		generateQueries();
+		scroll = new JScrollPane();
 
 		c = connection;
 		s = c.createStatement();
@@ -467,23 +469,14 @@ public class Panel extends JPanel{
 			ResultSet rs = s.executeQuery(query);
 			JTable jTab = new JTable(buildTabelModel(rs));	
 			if (jTab.getRowCount() > 0) {
-				
-				JScrollPane scroll = new JScrollPane(jTab);
-				Dimension d = jTab.getPreferredSize();
-				scroll.setPreferredSize(new Dimension(Math.min(d.width + 20, 320), 100));
-				scroll.setLocation(100, 500);
-				this.add(scroll);
-				this.validate();
-				
-				Insets insets = this.getInsets();
-				Dimension size = jTab.getPreferredSize();
-				scroll.setPreferredSize(new Dimension(50, 50));
+
+				this.remove(scroll);
+				scroll = new JScrollPane(jTab);
 				scroll.setMaximumSize(new Dimension(50, 50));
-				scroll.setBounds(100, 540, 600, 640);
+				scroll.setBounds(100, 540, 600, 214);
 				
 				this.setLayout(null);
 				this.add(scroll);
-				this.repaint();
 			}
 		} catch (SQLException e){
 			System.out.println("predef error");
