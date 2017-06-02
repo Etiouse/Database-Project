@@ -28,6 +28,7 @@ import tools.Argument;
 import tools.Button;
 import tools.DeleteCondition;
 import tools.Mouse;
+import tools.Textfield;
 
 public class Panel extends JPanel {
 
@@ -58,6 +59,7 @@ public class Panel extends JPanel {
 	private ArrayList<JScrollPane> scrolls;
 	private ArrayList<String> scrollsName;
 	private Query[] queries;
+	private Textfield tf;
 
 	private JScrollPane scrollPanel;
 
@@ -90,6 +92,8 @@ public class Panel extends JPanel {
 		this.setLayout(null);
 		scrollPanel.setBounds(42, 245, 715, 530);
 		this.add(scrollPanel);
+		
+		tf = new Textfield(getImg("/images/textfields/longtextfield.png"), getImg("/images/textfields/longtextfieldGlow.png"), 100, 157, 300);
 
 		c = connection;
 		s = c.createStatement();
@@ -127,6 +131,15 @@ public class Panel extends JPanel {
 					// String searchedWord = "";
 					// searchQuery(g, searchedWord, "");
 					searchQuery(g, "Batman", "");
+				}
+			}
+			
+			tf.draw(g);
+			if (tf.selected(mouseX, mouseY, mouse)) {
+				tf.setOn();
+			} else {
+				if (mouse.isClickedL()) {
+					tf.setOff();
 				}
 			}
 

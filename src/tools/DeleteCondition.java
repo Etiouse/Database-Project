@@ -52,6 +52,7 @@ public class DeleteCondition {
 		}
 
 		valueList = new Textfield(new ImageIcon(getClass().getResource("/images/textfields/textfield.png")).getImage(), 
+				new ImageIcon(getClass().getResource("/images/textfields/textfieldGlow.png")).getImage(),
 				x + 160, y + 80, 14);
 	}
 
