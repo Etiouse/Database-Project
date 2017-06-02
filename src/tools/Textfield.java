@@ -11,6 +11,7 @@ import javax.swing.ImageIcon;
 public class Textfield {
 
     private Image image;
+    private Image glow;
     private int x;
     private int y;
     private boolean on;
@@ -24,8 +25,9 @@ public class Textfield {
     private KeyboardListener keys;
     private boolean next;
 
-    public Textfield(Image image, int x, int y, int size){
+    public Textfield(Image image, Image glow, int x, int y, int size){
         this.image = image;
+        this.glow = glow;
         this.x = x;
         this.size = size;
         this.y = y;
@@ -46,7 +48,7 @@ public class Textfield {
         g.setColor(Color.BLACK);
         g.setFont(new Font("Serif", Font.PLAIN, size));
         if (on){
-            g.drawImage(new ImageIcon(getClass().getResource("/images/textfields/textfieldGlow.png")).getImage(), x, y, null);
+            g.drawImage(glow, x, y, null);
             
             if (time.clock()){
             	g.fillRect(x + 10 + (int)(KeyboardListener.length)*2, y + 7, 2, 15);
@@ -76,7 +78,7 @@ public class Textfield {
     }
     
     public boolean selected(int mouseX, int mouseY, Mouse mouse){
-    	return mouseX > x && mouseX < x + 150 && mouseY > y && mouseY < y + 30 && mouse.isClickedL();
+    	return mouseX > x && mouseX < x + image.getWidth(null) && mouseY > y && mouseY < y + image.getHeight(null) && mouse.isClickedL();
     }
 
     public void setOn(){

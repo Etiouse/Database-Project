@@ -30,6 +30,7 @@ import tools.Argument;
 import tools.Button;
 import tools.DeleteCondition;
 import tools.Mouse;
+import tools.Textfield;
 
 public class Panel extends JPanel {
 
@@ -58,6 +59,7 @@ public class Panel extends JPanel {
 	private ArrayList<Argument> args;
 	private ArrayList<DeleteCondition> deconds;
 	private Query[] queries;
+	private Textfield tf;
 
 	private JPanel contentPanel;
 	private JScrollPane scrollPane;
@@ -92,6 +94,8 @@ public class Panel extends JPanel {
 		scrollPane = new JScrollPane();
 		scrollPane.setBounds(42, 245, 715, 530);
 		this.add(scrollPane);
+		tf = new Textfield(getImg("/images/textfields/longtextfield.png"), getImg("/images/textfields/longtextfieldGlow.png"), 100, 157, 300);
+
 		c = connection;
 		s = c.createStatement();
 		declareButtons();
@@ -129,6 +133,17 @@ public class Panel extends JPanel {
 					scrollPane.validate();
 				}
 			}
+
+			
+			tf.draw(g);
+			if (tf.selected(mouseX, mouseY, mouse)) {
+				tf.setOn();
+			} else {
+				if (mouse.isClickedL()) {
+					tf.setOff();
+				}
+			}
+
 		} else if (panel == 1) {
 			g.drawImage(getImg("/images/backgrounds/bg1.png"), 0, 0, null);
 

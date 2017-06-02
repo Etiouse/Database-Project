@@ -23,6 +23,7 @@ public class Argument {
 		this.x = x;
 		this.y = y;
 		t = new Textfield(new ImageIcon(getClass().getResource("/images/textfields/textfield.png")).getImage(), 
+				new ImageIcon(getClass().getResource("/images/textfields/textfieldGlow.png")).getImage(),
 				x - 10, y + 10, 14);
 	}
 	
