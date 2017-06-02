@@ -8,6 +8,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.MouseInfo;
+import java.awt.ScrollPane;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -18,6 +19,7 @@ import java.util.Calendar;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -55,11 +57,11 @@ public class Panel extends JPanel {
 	private int tableSelected;
 	private ArrayList<Argument> args;
 	private ArrayList<DeleteCondition> deconds;
-	private ArrayList<JScrollPane> scrolls;
-	private ArrayList<String> scrollsName;
 	private Query[] queries;
 
-	private JScrollPane scrollPanel;
+	private JPanel contentPanel;
+	private JScrollPane scrollPane;
+	private int index = 0;
 
 	private Button find;
 	private JScrollPane scroll;
@@ -81,16 +83,15 @@ public class Panel extends JPanel {
 		deleteMode = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"), 360, 640, "", 20, 25, 18);
 		search = new Button(getImg("/images/buttons/query.png"), getImg("/images/buttons/queryGlow.png"), 600, 150, "Search", 40, 25, 18);
 		find = new Button(getImg("/images/buttons/query.png"), getImg("/images/buttons/queryGlow.png"), 335, 490, "Find", 54, 25, 18);
-		scrolls = new ArrayList<>();
-		scrollsName = new ArrayList<>();
 		queries = new Query[23];
 		generateQueries();
 		scroll = new JScrollPane();
-		scrollPanel = new JScrollPane();
+		contentPanel = new JPanel();
+		contentPanel.setLayout(null);
 		this.setLayout(null);
-		scrollPanel.setBounds(42, 245, 715, 530);
-		this.add(scrollPanel);
-
+		scrollPane = new JScrollPane();
+		scrollPane.setBounds(42, 245, 715, 530);
+		this.add(scrollPane);
 		c = connection;
 		s = c.createStatement();
 		declareButtons();
@@ -111,7 +112,6 @@ public class Panel extends JPanel {
 
 		if (panel == 0) {
 			g.drawImage(getImg("/images/backgrounds/bg1.png"), 0, 0, null);
-			this.add(scrollPanel);
 			// Display name of selected table
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Serif", Font.BOLD, 20));
@@ -120,22 +120,14 @@ public class Panel extends JPanel {
 			if (search.isSelected(mouseX, mouseY)) {
 				search.glow(g);
 				if (mouse.isClickedL()) {
-					scrolls = new ArrayList<>();
-					scrollsName = new ArrayList<>();
 					// scrollPanel.setBounds(150, y, width, height);
 					// Get content of edit field in a string
 					// String searchedWord = "";
 					// searchQuery(g, searchedWord, "");
 					searchQuery(g, "Batman", "");
+					scrollPane.getViewport().add(contentPanel);
+					scrollPane.validate();
 				}
-			}
-
-			for (int i = 0; i < scrolls.size(); ++i) {
-				g.drawString(scrollsName.get(i), 100, 100 + 200 * i);
-				JScrollPane scroll = scrolls.get(i);
-				scrollPanel.add(scroll);
-				scrollPanel.validate();
-				scrollPanel.repaint();
 			}
 		} else if (panel == 1) {
 			g.drawImage(getImg("/images/backgrounds/bg1.png"), 0, 0, null);
@@ -338,7 +330,7 @@ public class Panel extends JPanel {
 				onglet.glow(g);
 				if (mouse.isClickedL()) {
 					panel = i;
-					this.remove(scrollPanel);
+					this.remove(scrollPane);
 					this.remove(scroll);
 				}
 			}
@@ -540,8 +532,12 @@ public class Panel extends JPanel {
 						jTab.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 						JScrollPane scroll = new JScrollPane(jTab);
 						this.setLayout(null);
-						scrolls.add(scroll);
-						scrollsName.add(tableName);
+						JLabel lab = new JLabel("FOUND in table "+ tableName);
+						lab.setBounds(100, 100+ 100*index, 100, 5);
+						scroll.setBounds(100, 110 + 250*index, 250, 250);
+						index++;
+						contentPanel.add(lab);
+						contentPanel.add(scroll);
 						error = "";
 					}
 					// done = "You search query find something !";
