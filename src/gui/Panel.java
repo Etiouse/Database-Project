@@ -93,7 +93,7 @@ public class Panel extends JPanel {
 		scrollPanel.setBounds(42, 245, 715, 530);
 		this.add(scrollPanel);
 		
-		tf = new Textfield(getImg("/images/textfields/longtextfield.png"), getImg("/images/textfields/longtextfieldGlow.png"), 100, 157, 300);
+		tf = new Textfield(getImg("/images/textfields/longtextfield.png"), getImg("/images/textfields/longtextfieldGlow.png"), 100, 157, 14);
 
 		c = connection;
 		s = c.createStatement();
