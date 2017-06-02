@@ -96,7 +96,7 @@ public class Query {
 	}
 
 	public void draw(Graphics g, Mouse mouse, int mouseX, int mouseY) {
-		
+
 		g.setColor(Color.WHITE);
 		button.draw(g);
 		if (button.isSelected(mouseX, mouseY)) {
@@ -105,25 +105,30 @@ public class Query {
 				clicked = true;
 			}
 		}
-		
+
 		if (clicked) {
 			g.drawImage(click, x, y, null);
 			g.setColor(Color.BLACK);
-			g.setFont(new Font("Serif", Font.BOLD, 16));
+			g.setFont(new Font("Serif", Font.BOLD, 17));
 			g.drawString("Description of the query:", 105, 440);
-			g.setFont(new Font("Serif", Font.PLAIN, 16));
-			g.drawString("" + description, 105, 460);
+			g.setFont(new Font("Serif", Font.PLAIN, 17));
+
+			int maxChars = 90;
+			int layers = (int)(Math.ceil(description.length() / (float) maxChars));
+			for (int i = 0; i < layers; i++) {
+				g.drawString(description.substring(i*maxChars, Math.min((i+1)*maxChars, description.length())), 105, 460 + 20*i);
+			}
 		}
 	}
-	
+
 	public boolean selected(){
 		return clicked;
 	}
-	
+
 	public void done(){
 		clicked = false;
 	}
-	
+
 	public String getSql(){
 		return sql;
 	}

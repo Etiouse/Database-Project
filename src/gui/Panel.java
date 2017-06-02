@@ -76,7 +76,7 @@ public class Panel extends JPanel{
 		addMode = new Button(getImg("/images/buttons/addMode.png"), getImg("/images/buttons/modeSelected.png"), 360, 640, "", 20, 25, 18);
 		deleteMode = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"), 360, 640, "", 20, 25, 18);
 		search = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"), 600, 150, "", 20, 25, 18);
-		find = new Button(getImg("/images/buttons/query.png"), getImg("/images/buttons/queryGlow.png"), 335, 480, "Find", 54, 25, 18);
+		find = new Button(getImg("/images/buttons/query.png"), getImg("/images/buttons/queryGlow.png"), 335, 490, "Find", 54, 25, 18);
 		scrolls = new ArrayList<>();
 		scrollsName = new ArrayList<>();
 		queries = new Query[23];
@@ -141,6 +141,7 @@ public class Panel extends JPanel{
 				}
 			}
 			
+			g.setColor(Color.WHITE);
 			find.draw(g);
 			if (find.isSelected(mouseX, mouseY)) {
 				find.glow(g);
@@ -287,7 +288,7 @@ public class Panel extends JPanel{
 		}
 
 		// Display all the table
-		if (/*panel == 0 ||*/ panel == 2){
+		if (panel == 2){
 			g.setFont(new Font("Serif", Font.BOLD, 12));
 			g.setColor(Color.WHITE);
 			for (int i = 0; i < tablesButtons.size(); i++) {
@@ -323,6 +324,7 @@ public class Panel extends JPanel{
 				onglet.glow(g);
 				if (mouse.isClickedL()) {
 					panel = i;
+					this.remove(scroll);
 				}
 			}
 		}
@@ -473,7 +475,7 @@ public class Panel extends JPanel{
 				this.remove(scroll);
 				Dimension size = jTab.getPreferredSize();
 				scroll = new JScrollPane(jTab);
-				scroll.setBounds(100, 540, 600, Math.min(214, size.height + 22));
+				scroll.setBounds(100, 550, 600, Math.min(198, size.height + 22));
 				
 				this.setLayout(null);
 				this.add(scroll);
