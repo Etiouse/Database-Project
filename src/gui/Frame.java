@@ -1,6 +1,7 @@
 package gui;
 
 
+import java.awt.Insets;
 import java.sql.Connection;
 import java.sql.SQLException;
 

@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.MouseInfo;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -74,7 +75,7 @@ public class Panel extends JPanel{
 		addMode = new Button(getImg("/images/buttons/addMode.png"), getImg("/images/buttons/modeSelected.png"), 360, 640, "", 20, 25, 18);
 		deleteMode = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"), 360, 640, "", 20, 25, 18);
 		search = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"), 600, 150, "", 20, 25, 18);
-		find = new Button(getImg("/images/buttons/query.png"), getImg("/images/buttons/queryGlow.png"), 335, 480, "Find", 20, 25, 18);
+		find = new Button(getImg("/images/buttons/query.png"), getImg("/images/buttons/queryGlow.png"), 335, 480, "Find", 54, 25, 18);
 		scrolls = new ArrayList<>();
 		scrollsName = new ArrayList<>();
 		queries = new Query[23];
@@ -142,10 +143,10 @@ public class Panel extends JPanel{
 			if (find.isSelected(mouseX, mouseY)) {
 				find.glow(g);
 				if (mouse.isClickedL() && selected > -1) {
-					String sql = queries[selected].getSql();
-					System.out.println(sql);
+					predefQuery(g, queries[selected].getSql());
 				}
 			}
+			
 		} else {
 			// Insert + Remove panel
 			g.drawImage(getImg("/images/backgrounds/bg2.png"), 0, 0, null);
@@ -460,10 +461,38 @@ public class Panel extends JPanel{
 			}
 		}
 	}
+	
+	private void predefQuery(Graphics g, String query){
+		try {
+			ResultSet rs = s.executeQuery(query);
+			JTable jTab = new JTable(buildTabelModel(rs));	
+			if (jTab.getRowCount() > 0) {
+				
+				JScrollPane scroll = new JScrollPane(jTab);
+				Dimension d = jTab.getPreferredSize();
+				scroll.setPreferredSize(new Dimension(Math.min(d.width + 20, 320), 100));
+				scroll.setLocation(100, 500);
+				this.add(scroll);
+				this.validate();
+				
+				Insets insets = this.getInsets();
+				Dimension size = jTab.getPreferredSize();
+				scroll.setPreferredSize(new Dimension(50, 50));
+				scroll.setMaximumSize(new Dimension(50, 50));
+				scroll.setBounds(100, 540, 600, 640);
+				
+				this.setLayout(null);
+				this.add(scroll);
+				this.repaint();
+			}
+		} catch (SQLException e){
+			System.out.println("predef error");
+		}
+	}
 
 	// Table name can be null (""), we have then to look in every table
 	private void searchQuery(Graphics g, String search, String tableName) {
-		System.out.println("Search for table : "+tableName);
+		System.out.println("Search for table : " + tableName);
 		if (tableName.equals("")){
 			// Go through every table
 			for (int i = 0; i < tables.size(); ++i){

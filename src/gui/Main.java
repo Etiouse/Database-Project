@@ -1,6 +1,8 @@
 package gui;
 
-import java.sql.*;
+import java.awt.Insets;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 import sql.ConnectionManager;
 
