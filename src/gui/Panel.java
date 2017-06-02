@@ -13,13 +13,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JViewport;
 import javax.swing.table.DefaultTableModel;
 
 import tools.Argument;
@@ -41,6 +42,7 @@ public class Panel extends JPanel{
 	private Button add;
 	private Button addMode;
 	private Button deleteMode;
+	private Button search;
 	private String error;
 	private String done;
 	private int mode;
@@ -52,6 +54,8 @@ public class Panel extends JPanel{
 	private int tableSelected; 
 	private ArrayList<Argument> args;
 	private ArrayList<DeleteCondition> deconds;
+	private ArrayList<JScrollPane> scrolls;
+	private ArrayList<String> scrollsName;
 
 	public Panel(Connection connection) throws SQLException {
 		mouseX = 0;
@@ -67,6 +71,10 @@ public class Panel extends JPanel{
 		add = new Button(getImg("/images/buttons/add.png"), getImg("/images/buttons/addSelected.png"), 550, 620, "", 20, -5, 14);
 		addMode = new Button(getImg("/images/buttons/addMode.png"), getImg("/images/buttons/modeSelected.png"), 360, 640, "", 20, 25, 18);
 		deleteMode = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"), 360, 640, "", 20, 25, 18);
+		search = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"), 600, 150, "", 20, 25, 18);
+		scrolls = new ArrayList<>();
+		scrollsName = new ArrayList<>();
+
 		c = connection;
 		s = c.createStatement();
 		declareButtons();
@@ -82,21 +90,35 @@ public class Panel extends JPanel{
 
 	@Override
 	public void paintComponent(Graphics g){     
-
 		mouseX = MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x;                                                          
 		mouseY = MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y; 
 
 		if (panel == 0) {
-			g.drawImage(getImg("/images/backgrounds/bg.png"), 0, 0, null);
-
+			g.drawImage(getImg("/images/backgrounds/bg1.png"), 0, 0, null);
 			// Display name of selected table
 			g.setColor(Color.BLACK);
 			g.setFont(new Font("Serif", Font.BOLD, 20));
-			String nameOfTable = tables.get(tableSelected);
-			g.drawString(nameOfTable, 470 - nameOfTable.length()*5, 245);
-			g.drawString("RULES", 450, 140);
-			
+			search.draw(g);
 
+			if (search.isSelected(mouseX, mouseY)) {
+				search.glow(g);
+				if (mouse.isClickedL()) {
+					scrolls = new ArrayList<>();
+					scrollsName = new ArrayList<>();
+					//Get content of edit field in a string 
+					//String searchedWord = "";
+					//searchQuery(g, searchedWord, "");
+					searchQuery(g, "Batman", "");
+				}
+			}
+
+			for (int i = 0; i < scrolls.size(); i++){
+				g.drawString("Found in table " + scrollsName.get(i), 100, 100+50*i);
+				JScrollPane scroll = scrolls.get(i);
+				this.add(scroll);
+			}
+			this.validate();
+			this.repaint();
 		} else if (panel == 1) {
 			g.drawImage(getImg("/images/backgrounds/bg1.png"), 0, 0, null);
 		} else {
@@ -168,8 +190,7 @@ public class Panel extends JPanel{
 				if (add.isSelected(mouseX, mouseY)) {
 					add.glow(g);
 					if (mouse.isClickedL()) {
-						//deleteQuery(g, tables.get(tableSelected), deconds);
-						searchQuery(g, "Batman", "ISSUE");
+						deleteQuery(g, tables.get(tableSelected), deconds);
 					}
 				}
 
@@ -238,7 +259,7 @@ public class Panel extends JPanel{
 		}
 
 		// Display all the table
-		if (panel == 0 || panel == 2){
+		if (/*panel == 0 ||*/ panel == 2){
 			g.setFont(new Font("Serif", Font.BOLD, 12));
 			g.setColor(Color.WHITE);
 			for (int i = 0; i < tablesButtons.size(); i++) {
@@ -425,29 +446,21 @@ public class Panel extends JPanel{
 				if (!query.substring(query.length()-6, query.length()).equals("WHERE ")) {
 					ResultSet rs = s.executeQuery(query);
 					//read info; and pretty print it
-					/*String res = "";
-					ResultSetMetaData metaData = rs.getMetaData();
 
-					int colCount = metaData.getColumnCount();
-					while (rs.next()){
-						for (int col = 1; col <= colCount; col ++){
-							res += rs.getObject(col) + ",";
-						}
-						
-						res = res.substring(0, res.length()-1);
-						res += ";";
-					}
-					System.out.println(res);*/
 					JTable jTab = new JTable(buildTabelModel(rs));	
-					JScrollPane scroll = new JScrollPane(jTab);
-					Dimension d = jTab.getPreferredSize();
-					scroll.setHorizontalScrollBarPolicy(scroll.HORIZONTAL_SCROLLBAR_ALWAYS);
-					scroll.setPreferredSize(new Dimension(500, 100));
-					//JOptionPane.showMessageDialog(null, scroll);
-					this.add(scroll);
-					this.validate();
-					this.repaint();
-					error = "";
+					if (jTab.getRowCount() > 0) {
+						jTab.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+						JScrollPane scroll = new JScrollPane(jTab);
+						Dimension d = jTab.getPreferredSize();
+						scroll.setPreferredSize(new Dimension(Math.min(d.width + 20, 320), 100));
+						//scroll.setLocation(100, 500);
+						//this.add(scroll);
+						//this.validate();
+						//this.repaint();
+						scrolls.add(scroll);
+						scrollsName.add(tableName);
+						error = "";
+					}
 					System.out.println("DONE");
 					//done = "You search query find something !";
 				} else error = "You didn't put any information";
@@ -477,7 +490,6 @@ public class Panel extends JPanel{
 			}
 			data.add(vect);
 		}
-
 		return new DefaultTableModel(data, colNames);
 	}
 }
