@@ -13,16 +13,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JViewport;
 import javax.swing.table.DefaultTableModel;
 
+import sql.Query;
 import tools.Argument;
 import tools.Button;
 import tools.DeleteCondition;
@@ -56,6 +55,9 @@ public class Panel extends JPanel{
 	private ArrayList<DeleteCondition> deconds;
 	private ArrayList<JScrollPane> scrolls;
 	private ArrayList<String> scrollsName;
+	private Query[] queries;
+	
+	private Button find;
 
 	public Panel(Connection connection) throws SQLException {
 		mouseX = 0;
@@ -72,8 +74,11 @@ public class Panel extends JPanel{
 		addMode = new Button(getImg("/images/buttons/addMode.png"), getImg("/images/buttons/modeSelected.png"), 360, 640, "", 20, 25, 18);
 		deleteMode = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"), 360, 640, "", 20, 25, 18);
 		search = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"), 600, 150, "", 20, 25, 18);
+		find = new Button(getImg("/images/buttons/query.png"), getImg("/images/buttons/queryGlow.png"), 335, 480, "Find", 20, 25, 18);
 		scrolls = new ArrayList<>();
 		scrollsName = new ArrayList<>();
+		queries = new Query[23];
+		generateQueries();
 
 		c = connection;
 		s = c.createStatement();
@@ -121,6 +126,26 @@ public class Panel extends JPanel{
 			this.repaint();
 		} else if (panel == 1) {
 			g.drawImage(getImg("/images/backgrounds/bg1.png"), 0, 0, null);
+			
+			int selected = -1;
+			for (int i = 0; i < queries.length; i++) {
+				queries[i].draw(g, mouse, mouseX, mouseY);
+				if (queries[i].selected()) {
+					selected = i;
+					for (int j = 0; j < queries.length; j++) {
+						if (i != j) queries[j].done();
+					}
+				}
+			}
+			
+			find.draw(g);
+			if (find.isSelected(mouseX, mouseY)) {
+				find.glow(g);
+				if (mouse.isClickedL() && selected > -1) {
+					String sql = queries[selected].getSql();
+					System.out.println(sql);
+				}
+			}
 		} else {
 			// Insert + Remove panel
 			g.drawImage(getImg("/images/backgrounds/bg2.png"), 0, 0, null);
@@ -399,27 +424,40 @@ public class Panel extends JPanel{
 
 	private void deleteQuery(Graphics g, String tableName, ArrayList<DeleteCondition> content){
 		String query = "DELETE FROM " + tableName + " WHERE ";
+		boolean correct = true;
 		for (int i = 0; i < content.size(); i++){
 			DeleteCondition dc = content.get(i);
 			if (i > 0 && !dc.getText().equals("")) query += " AND ";
 			query += dc.getText();
-		}
-		try {
-			if (!query.substring(query.length()-6, query.length()).equals("WHERE ")) {
-				s.executeQuery(query);
-				error = "";
-			} else error = "You didn't put any information";
-			deconds = new ArrayList<>();
-			String[] argsList = new String[args.size()];
-			for (int i = 0; i < args.size(); i++) {
-				argsList[i] = args.get(i).getName();
+			Argument a = null;
+			for (int j = 0; j < args.size(); j++) {
+				if (args.get(j).getName().equals(content.get(i).getArg())) a = args.get(j);
 			}
-			deconds.add(new DeleteCondition(argsList, 250, 200));
-			done = "Deletion done";
-			error = "";
-		} catch (SQLException e) {
-			error = "Wrong format detected";
-			done = "";
+			if (a != null && !a.matchType(a.getContent())) {
+				correct = false;
+				error = a.getName() + " should be " + a.getGoodType() + "";
+				done = "";
+				break;
+			}
+		}
+		if (correct) {
+			try {
+				if (!query.substring(query.length()-6, query.length()).equals("WHERE ")) {
+					s.executeQuery(query);
+					error = "";
+				} else error = "You didn't put any information";
+				deconds = new ArrayList<>();
+				String[] argsList = new String[args.size()];
+				for (int i = 0; i < args.size(); i++) {
+					argsList[i] = args.get(i).getName();
+				}
+				deconds.add(new DeleteCondition(argsList, 250, 200));
+				done = "Deletion done";
+				error = "";
+			} catch (SQLException e) {
+				error = "Wrong format detected";
+				done = "";
+			}
 		}
 	}
 
@@ -491,5 +529,11 @@ public class Panel extends JPanel{
 			data.add(vect);
 		}
 		return new DefaultTableModel(data, colNames);
+	}
+	
+	private void generateQueries(){
+		for (int i = 0; i < queries.length; i++) {
+			queries[i] = new Query(i);
+		}
 	}
 }
