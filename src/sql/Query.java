@@ -91,7 +91,8 @@ public class Query {
 		img = new ImageIcon(getClass().getResource("/images/buttons/query.png")).getImage();
 		glow = new ImageIcon(getClass().getResource("/images/buttons/queryGlow.png")).getImage();
 		click = new ImageIcon(getClass().getResource("/images/buttons/querySelected.png")).getImage();
-		button = new Button(img, glow, x, y, name, 5, 15, 14);
+		if (queryNumber < 10) button = new Button(img, glow, x, y, name, 41, 25, 18);
+		else button = new Button(img, glow, x, y, name, 35, 25, 18);
 	}
 
 	public void draw(Graphics g, Mouse mouse, int mouseX, int mouseY) {
@@ -108,11 +109,10 @@ public class Query {
 		if (clicked) {
 			g.drawImage(click, x, y, null);
 			g.setColor(Color.BLACK);
-			g.setFont(new Font("Serif", Font.BOLD, 14));
+			g.setFont(new Font("Serif", Font.BOLD, 16));
 			g.drawString("Description of the query:", 105, 440);
-			g.setFont(new Font("Serif", Font.PLAIN, 14));
+			g.setFont(new Font("Serif", Font.PLAIN, 16));
 			g.drawString("" + description, 105, 460);
-			g.setFont(new Font("Serif", Font.BOLD, 14));
 		}
 	}
 	

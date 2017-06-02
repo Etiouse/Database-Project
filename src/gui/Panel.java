@@ -471,9 +471,9 @@ public class Panel extends JPanel{
 			if (jTab.getRowCount() > 0) {
 
 				this.remove(scroll);
+				Dimension size = jTab.getPreferredSize();
 				scroll = new JScrollPane(jTab);
-				scroll.setMaximumSize(new Dimension(50, 50));
-				scroll.setBounds(100, 540, 600, 214);
+				scroll.setBounds(100, 540, 600, Math.min(214, size.height + 22));
 				
 				this.setLayout(null);
 				this.add(scroll);
