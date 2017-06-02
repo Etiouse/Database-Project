@@ -95,7 +95,7 @@ public class Panel extends JPanel {
 		scrollPane = new JScrollPane();
 		scrollPane.setBounds(42, 245, 715, 530);
 		this.add(scrollPane);
-		tf = new Textfield(getImg("/images/textfields/longtextfield.png"), getImg("/images/textfields/longtextfieldGlow.png"), 100, 157, 300);
+		tf = new Textfield(getImg("/images/textfields/longtextfield.png"), getImg("/images/textfields/longtextfieldGlow.png"), 100, 157, 14);
 
 		c = connection;
 		s = c.createStatement();
@@ -125,11 +125,8 @@ public class Panel extends JPanel {
 			if (search.isSelected(mouseX, mouseY)) {
 				search.glow(g);
 				if (mouse.isClickedL()) {
-					// scrollPanel.setBounds(150, y, width, height);
-					// Get content of edit field in a string
-					// String searchedWord = "";
-					// searchQuery(g, searchedWord, "");
-					searchQuery(g, "Batman", "");
+					String c = tf.getContent();
+					searchQuery(g, c, "");
 					scrollPane.getViewport().add(contentPanel);
 					scrollPane.validate();
 				}
@@ -142,6 +139,7 @@ public class Panel extends JPanel {
 			} else {
 				if (mouse.isClickedL()) {
 					tf.setOff();
+					tf.save();
 				}
 			}
 
