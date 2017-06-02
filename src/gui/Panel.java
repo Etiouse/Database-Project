@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -12,9 +13,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Vector;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 import tools.Argument;
 import tools.Button;
@@ -89,6 +95,7 @@ public class Panel extends JPanel{
 			String nameOfTable = tables.get(tableSelected);
 			g.drawString(nameOfTable, 470 - nameOfTable.length()*5, 245);
 			g.drawString("RULES", 450, 140);
+			
 
 		} else if (panel == 1) {
 			g.drawImage(getImg("/images/backgrounds/bg1.png"), 0, 0, null);
@@ -161,7 +168,8 @@ public class Panel extends JPanel{
 				if (add.isSelected(mouseX, mouseY)) {
 					add.glow(g);
 					if (mouse.isClickedL()) {
-						deleteQuery(g, tables.get(tableSelected), deconds);
+						//deleteQuery(g, tables.get(tableSelected), deconds);
+						searchQuery(g, "Batman", "ISSUE");
 					}
 				}
 
@@ -174,7 +182,7 @@ public class Panel extends JPanel{
 					deconds.add(new DeleteCondition(argsList, 250, 200 + deconds.size() * 140));
 				}
 			}
-			
+
 			// Handle the exposure time of the info message
 			if (!done.equals("") && timesup) {
 				timesup = false;
@@ -343,7 +351,7 @@ public class Panel extends JPanel{
 				break;
 			}
 		}
-		
+
 		if (correct) {
 			query += ") VALUES (";
 			for (int i = 0; i < content.length; i++){
@@ -392,5 +400,84 @@ public class Panel extends JPanel{
 			error = "Wrong format detected";
 			done = "";
 		}
+	}
+
+	// Table name can be null (""), we have then to look in every table
+	private void searchQuery(Graphics g, String search, String tableName) {
+		System.out.println("Search for table : "+tableName);
+		if (tableName.equals("")){
+			// Go through every table
+			for (int i = 0; i < tables.size(); ++i){
+				String tabName = tables.get(i);
+				searchQuery(g, search, tabName);
+			}
+		} else {
+			// Select all from the table where any argument is like the searched term
+			String query = "SELECT * FROM "+ tableName + " WHERE ";
+			args = new ArrayList<>();
+			loadTableArgs(tableName);
+			for (int i = 0; i < args.size(); i++){
+				query += args.get(i).getName() + " LIKE \'%" + search + "%\' OR ";
+			}
+			query = query.substring(0, query.length()-4);
+			System.out.println(query);
+			try {
+				if (!query.substring(query.length()-6, query.length()).equals("WHERE ")) {
+					ResultSet rs = s.executeQuery(query);
+					//read info; and pretty print it
+					/*String res = "";
+					ResultSetMetaData metaData = rs.getMetaData();
+
+					int colCount = metaData.getColumnCount();
+					while (rs.next()){
+						for (int col = 1; col <= colCount; col ++){
+							res += rs.getObject(col) + ",";
+						}
+						
+						res = res.substring(0, res.length()-1);
+						res += ";";
+					}
+					System.out.println(res);*/
+					JTable jTab = new JTable(buildTabelModel(rs));	
+					JScrollPane scroll = new JScrollPane(jTab);
+					Dimension d = jTab.getPreferredSize();
+					scroll.setHorizontalScrollBarPolicy(scroll.HORIZONTAL_SCROLLBAR_ALWAYS);
+					scroll.setPreferredSize(new Dimension(500, 100));
+					//JOptionPane.showMessageDialog(null, scroll);
+					this.add(scroll);
+					this.validate();
+					this.repaint();
+					error = "";
+					System.out.println("DONE");
+					//done = "You search query find something !";
+				} else error = "You didn't put any information";
+			} catch (SQLException e){
+				error = "Wrong format detected";
+				done = "";
+			}			
+		}
+	}
+
+	public static DefaultTableModel buildTabelModel(ResultSet rs) throws SQLException{
+		ResultSetMetaData metaData = rs.getMetaData();
+
+		//column's name
+		Vector<String> colNames = new Vector<String>();
+		int colCount = metaData.getColumnCount();
+		for (int col = 1; col <= colCount; ++col){
+			colNames.add(metaData.getColumnName(col));
+		}
+
+		//Data from the table
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()){
+			Vector<Object> vect = new Vector<Object>();
+			for (int col = 1; col <= colCount; col ++){
+				vect.add(rs.getObject(col));
+			}
+			data.add(vect);
+		}
+
+		return new DefaultTableModel(data, colNames);
 	}
 }
