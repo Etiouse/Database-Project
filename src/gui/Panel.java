@@ -76,16 +76,11 @@ public class Panel extends JPanel {
 		deconds = new ArrayList<>();
 		mouse = new Mouse();
 
-		add = new Button(getImg("/images/buttons/add.png"), getImg("/images/buttons/addSelected.png"), 550, 620, "", 20,
-				-5, 14);
-		addMode = new Button(getImg("/images/buttons/addMode.png"), getImg("/images/buttons/modeSelected.png"), 360,
-				640, "", 20, 25, 18);
-		deleteMode = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"),
-				360, 640, "", 20, 25, 18);
-		search = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"), 600,
-				150, "", 20, 25, 18);
-		find = new Button(getImg("/images/buttons/query.png"), getImg("/images/buttons/queryGlow.png"), 335, 490,
-				"Find", 54, 25, 18);
+		add = new Button(getImg("/images/buttons/add.png"), getImg("/images/buttons/addSelected.png"), 550, 620, "", 20, -5, 14);
+		addMode = new Button(getImg("/images/buttons/addMode.png"), getImg("/images/buttons/modeSelected.png"), 360, 640, "", 20, 25, 18);
+		deleteMode = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"), 360, 640, "", 20, 25, 18);
+		search = new Button(getImg("/images/buttons/query.png"), getImg("/images/buttons/queryGlow.png"), 600, 150, "Search", 40, 25, 18);
+		find = new Button(getImg("/images/buttons/query.png"), getImg("/images/buttons/queryGlow.png"), 335, 490, "Find", 54, 25, 18);
 		scrolls = new ArrayList<>();
 		scrollsName = new ArrayList<>();
 		queries = new Query[23];
@@ -118,7 +113,7 @@ public class Panel extends JPanel {
 			g.drawImage(getImg("/images/backgrounds/bg1.png"), 0, 0, null);
 			this.add(scrollPanel);
 			// Display name of selected table
-			g.setColor(Color.BLACK);
+			g.setColor(Color.WHITE);
 			g.setFont(new Font("Serif", Font.BOLD, 20));
 			search.draw(g);
 
@@ -135,7 +130,6 @@ public class Panel extends JPanel {
 				}
 			}
 
-			int j = 0;
 			for (int i = 0; i < scrolls.size(); ++i) {
 				g.drawString(scrollsName.get(i), 100, 100 + 200 * i);
 				JScrollPane scroll = scrolls.get(i);
