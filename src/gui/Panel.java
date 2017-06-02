@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MouseInfo;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -17,6 +19,7 @@ import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -58,10 +61,11 @@ public class Panel extends JPanel {
 	private ArrayList<DeleteCondition> deconds;
 	private Query[] queries;
 	private Textfield tf;
+	private JComboBox<String> combo;
 
 	private JPanel contentPanel;
 	private JScrollPane scrollPane;
-	private int index = 0;
+	private boolean empty = true;
 
 	private Button find;
 	private JScrollPane scroll;
@@ -89,7 +93,7 @@ public class Panel extends JPanel {
 		contentPanel = new JPanel();
 		contentPanel.setLayout(null);
 		this.setLayout(null);
-
+		
 		scrollPane = new JScrollPane();
 		scrollPane.setBounds(42, 245, 715, 530);
 		this.add(scrollPane);
@@ -105,6 +109,13 @@ public class Panel extends JPanel {
 		timesup = true;
 
 		refreshDatabase();
+		combo = new JComboBox<>();
+		combo.addItem("ALL");
+		for (int i = 0; i < tables.size(); i++){
+			combo.addItem(tables.get(i));
+		}
+		this.add(combo);
+		combo.setBounds(600, 200, 145, 18);
 		loadTableArgs(tables.get(tableSelected));
 	}
 
@@ -112,7 +123,11 @@ public class Panel extends JPanel {
 	public void paintComponent(Graphics g) {
 		mouseX = MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x;
 		mouseY = MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y;
-
+		
+		if (mouse.isClickedL()){
+			combo.setFocusable(false);
+		}
+		
 		if (panel == 0) {
 			g.drawImage(getImg("/images/backgrounds/bg1.png"), 0, 0, null);
 			// Display name of selected table
@@ -123,14 +138,18 @@ public class Panel extends JPanel {
 			if (search.isSelected(mouseX, mouseY)) {
 				search.glow(g);
 				if (mouse.isClickedL()) {
+					empty = true;
 					scrollPane.remove(contentPanel);
 					contentPanel = new JPanel();
 					contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));	
-					//contentPanel.setBounds(0, 0, 715, 300*tables.size());
-					index = 0;
 					String c = tf.getContent();
 					if (c != ""){
-						searchQuery(g, c, "");
+						String table = combo.getSelectedItem().toString();
+						searchQuery(g, c, table);
+						if (empty){
+							JLabel txt = new JLabel("Sorry your info were not found :(");
+							contentPanel.add(txt);
+						}
 						scrollPane.getViewport().add(contentPanel);
 						scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 						scrollPane.validate();
@@ -352,8 +371,10 @@ public class Panel extends JPanel {
 					panel = i;
 					this.remove(scrollPane);
 					this.remove(scroll);
+					this.remove(combo);
 					if (panel == 0){
 						this.add(scrollPane);
+						this.add(combo);
 					}
 				}
 			}
@@ -524,10 +545,10 @@ public class Panel extends JPanel {
 		}
 	}
 
-	// Table name can be null (""), we have then to look in every table
+	// Table name can be null ("ALL"), we have then to look in every table
 	private void searchQuery(Graphics g, String search, String tableName) {
 		System.out.println("Search for table : " + tableName);
-		if (tableName.equals("")) {
+		if (tableName.equals("ALL")) {
 			// Go through every table
 			for (int i = 0; i < tables.size(); ++i) {
 				String tabName = tables.get(i);
@@ -552,11 +573,11 @@ public class Panel extends JPanel {
 
 					JTable jTab = new JTable(buildTabelModel(rs));
 					if (jTab.getRowCount() > 0) {
-						//jTab.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+						empty = false;
+						jTab.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 						JScrollPane scroll = new JScrollPane(jTab);
 						this.setLayout(null);
 						JLabel lab = new JLabel("FOUND in table "+ tableName);
-						index++;
 						contentPanel.add(lab);
 						contentPanel.add(scroll);
 						error = "";
