@@ -60,7 +60,7 @@ public class Panel extends JPanel {
 	private Query[] queries;
 
 	private JScrollPane scrollPanel;
-	
+
 	private Button find;
 	private JScrollPane scroll;
 
@@ -75,6 +75,7 @@ public class Panel extends JPanel {
 		args = new ArrayList<>();
 		deconds = new ArrayList<>();
 		mouse = new Mouse();
+
 		add = new Button(getImg("/images/buttons/add.png"), getImg("/images/buttons/addSelected.png"), 550, 620, "", 20,
 				-5, 14);
 		addMode = new Button(getImg("/images/buttons/addMode.png"), getImg("/images/buttons/modeSelected.png"), 360,
@@ -83,7 +84,7 @@ public class Panel extends JPanel {
 				360, 640, "", 20, 25, 18);
 		search = new Button(getImg("/images/buttons/deleteMode.png"), getImg("/images/buttons/modeSelected.png"), 600,
 				150, "", 20, 25, 18);
-		find = new Button(getImg("/images/buttons/query.png"), getImg("/images/buttons/queryGlow.png"), 335, 480,
+		find = new Button(getImg("/images/buttons/query.png"), getImg("/images/buttons/queryGlow.png"), 335, 490,
 				"Find", 54, 25, 18);
 		scrolls = new ArrayList<>();
 		scrollsName = new ArrayList<>();
@@ -120,20 +121,20 @@ public class Panel extends JPanel {
 			g.setColor(Color.BLACK);
 			g.setFont(new Font("Serif", Font.BOLD, 20));
 			search.draw(g);
-			
+
 			if (search.isSelected(mouseX, mouseY)) {
 				search.glow(g);
 				if (mouse.isClickedL()) {
 					scrolls = new ArrayList<>();
 					scrollsName = new ArrayList<>();
-					//scrollPanel.setBounds(150, y, width, height);
+					// scrollPanel.setBounds(150, y, width, height);
 					// Get content of edit field in a string
 					// String searchedWord = "";
 					// searchQuery(g, searchedWord, "");
 					searchQuery(g, "Batman", "");
 				}
 			}
-			
+
 			int j = 0;
 			for (int i = 0; i < scrolls.size(); ++i) {
 				g.drawString(scrollsName.get(i), 100, 100 + 200 * i);
@@ -157,6 +158,7 @@ public class Panel extends JPanel {
 				}
 			}
 
+			g.setColor(Color.WHITE);
 			find.draw(g);
 			if (find.isSelected(mouseX, mouseY)) {
 				find.glow(g);
@@ -305,7 +307,8 @@ public class Panel extends JPanel {
 		}
 
 		// Display all the table
-		if (/* panel == 0 || */ panel == 2) {
+
+		if (panel == 2) {
 			g.setFont(new Font("Serif", Font.BOLD, 12));
 			g.setColor(Color.WHITE);
 			for (int i = 0; i < tablesButtons.size(); i++) {
@@ -342,6 +345,7 @@ public class Panel extends JPanel {
 				if (mouse.isClickedL()) {
 					panel = i;
 					this.remove(scrollPanel);
+					this.remove(scroll);
 				}
 			}
 		}
@@ -500,7 +504,8 @@ public class Panel extends JPanel {
 				this.remove(scroll);
 				Dimension size = jTab.getPreferredSize();
 				scroll = new JScrollPane(jTab);
-				scroll.setBounds(100, 540, 600, Math.min(214, size.height + 22));
+
+				scroll.setBounds(100, 550, 600, Math.min(198, size.height + 22));
 
 				this.setLayout(null);
 				this.add(scroll);

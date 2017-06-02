@@ -60,7 +60,7 @@ public class Query {
 			"SELECT * FROM Story S WHERE S.sid not in (SELECT SR.origin FROM Story_Reprint SR) AND S.sid in (SELECT H.sid FROM Have H WHERE H.feature = 0 AND H.cid in (SELECT C.cid FROM CHARACTERS C WHERE C.name LIKE  '%Batman%'))",
 			"select s.name from series s where s.sid=( select sid from (select count(i.sid) as counted,i.sid as sid from issue i group by i.sid order by counted) where counted=(select max(counts) from (select count(i.sid) as counts from issue i where i.iid not in(select distinct st.iid from (select count(s.sid2) as counted, s.sid2 as tid from story s group by s.sid2), story st where counted=( select max(countType) from (select count(t.sid2) as countType from story t group by t.sid2)) and tid=st.sid2) group by i.sid)))",
 			"select p.name from publisher p where p.pid in( select pid from  (select count(distinct st.sid) as nType, p.pid from story_type st, story s, issue i, series se, publisher p where st.sid=s.sid2 and s.iid=i.iid and i.sid=se.sid and se.pub_pid=p.pid group by p.pid) where nType>=(select count(sid) from story_type where name not like '%unknown%'))",
-			"select c.name from characters c where c.cid in (select h.cid from have h where h.sid in (select s.sid from story s where s.sid in (select w.sid from work_on w where w.aid in (select a.aid from artists a where a.name like '%Alan Moore%')) and s.sid in (select sr.target from story_reprint sr ))) and c.NAME is not null and rownum<=10",
+			"select c.name from characters c where c.cid in (select h.cid from have h where h.sid in (select origin from (select count(sr.origin) as nbrpr, sr.origin from story_reprint sr where sr.origin in (select w.sid from work_on w where w.aid in (select a.aid from artists a where a.name like '%Alan Moore%')) group by sr.origin order by count(sr.origin) desc) where nbrpr>=10))",
 			"SELECT * FROM Artists A WHERE A.aid in (SELECT W.aid FROM WORK_ON W WHERE W.script = 1 AND W.pencils = 1 AND W.sid in (SELECT H.sid FROM Has_Genre H WHERE H.gid in (SELECT G.gid FROM Genre G WHERE G.name = 'nature')))",
 			"with langbypub as (select f2 as lid, f3 as pid from(select f1,f2,f3, row_number() over (partition by f3 order by f1 desc) as rank from (select count(s2.language_id) as f1,s2.language_id as f2,s2.pub_pid as f3 from series s2 where s2.pub_pid in (select pub_pid from( select count(s.pub_pid), s.pub_pid from series s where s.pub_pid !=41 group by s.pub_pid order by count(s.pub_pid ) desc) where rownum<=10) group by s2.language_id,s2.pub_pid)) where rank <=3) select p.name, l.name from langbypub q join language l on l.lid=q.lid join publisher p on p.pid=q.pid order by q.pid",
 			"select serie, lid, count(stories) from (select serie, lid, stories from (select serie, lid, s.sid as stories from (select sname as serie, l.name as lid, i.iid as issid from (select se.name as sname, se.sid as sid1, se.language_id as lang from series se where se.pub_type_id in (select ty.pid from publication_type ty inner join language l on l.lid=se.language_id where ty.name='magazine')) inner join language l on l.lid=lang inner join issue i on i.sid=sid1) inner join story s on s.iid=issid) where stories not in (select r.target from story_reprint r)) group by serie, lid having count(stories)>1000",
@@ -91,12 +91,12 @@ public class Query {
 		img = new ImageIcon(getClass().getResource("/images/buttons/query.png")).getImage();
 		glow = new ImageIcon(getClass().getResource("/images/buttons/queryGlow.png")).getImage();
 		click = new ImageIcon(getClass().getResource("/images/buttons/querySelected.png")).getImage();
-		if (queryNumber < 10) button = new Button(img, glow, x, y, name, 41, 25, 18);
-		else button = new Button(img, glow, x, y, name, 35, 25, 18);
+		if (queryNumber < 9) button = new Button(img, glow, x, y, name, 41, 25, 18);
+		else button = new Button(img, glow, x, y, name, 38, 25, 18);
 	}
 
 	public void draw(Graphics g, Mouse mouse, int mouseX, int mouseY) {
-		
+
 		g.setColor(Color.WHITE);
 		button.draw(g);
 		if (button.isSelected(mouseX, mouseY)) {
@@ -105,25 +105,30 @@ public class Query {
 				clicked = true;
 			}
 		}
-		
+
 		if (clicked) {
 			g.drawImage(click, x, y, null);
 			g.setColor(Color.BLACK);
-			g.setFont(new Font("Serif", Font.BOLD, 16));
+			g.setFont(new Font("Serif", Font.BOLD, 17));
 			g.drawString("Description of the query:", 105, 440);
-			g.setFont(new Font("Serif", Font.PLAIN, 16));
-			g.drawString("" + description, 105, 460);
+			g.setFont(new Font("Serif", Font.PLAIN, 17));
+
+			int maxChars = 90;
+			int layers = (int)(Math.ceil(description.length() / (float) maxChars));
+			for (int i = 0; i < layers; i++) {
+				g.drawString(description.substring(i*maxChars, Math.min((i+1)*maxChars, description.length())), 105, 460 + 20*i);
+			}
 		}
 	}
-	
+
 	public boolean selected(){
 		return clicked;
 	}
-	
+
 	public void done(){
 		clicked = false;
 	}
-	
+
 	public String getSql(){
 		return sql;
 	}
